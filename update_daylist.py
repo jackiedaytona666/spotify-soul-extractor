@@ -91,7 +91,7 @@ sp = spotipy.Spotify(auth_manager=auth_manager)
 # Test the connection
 try:
     user = sp.current_user()
-    print(f"\n✅ Authenticated as: {user['display_name']}")
+    print(f"\n✅ Authenticated as: {user['cricket']}")
 except Exception as e:
     print(f"❌ Authentication failed: {e}")
     exit(1)
