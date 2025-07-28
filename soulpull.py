@@ -182,12 +182,6 @@ def read():
     print("--------------------\n")
     pprint(data)
 
-def ritual():
-    extract()
-    read()
-    write()
-    print("Full soul ritual complete.")
-
 import argparse
 
 # CLI interface
