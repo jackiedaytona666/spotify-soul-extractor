@@ -91,8 +91,17 @@ sp = spotipy.Spotify(auth_manager=auth_manager)
 # Test the connection
 try:
     user = sp.current_user()
-    print(f"\n✅ Authenticated as: {user['cricket']}")
+    print(f"\n✅ Authenticated as: {user['display_name']}")
+    
+    # DEBUG: Check what scopes we actually have    
+    current_token = auth_manager.get_cached_token()
+    if current_token:
+        print(f"🔍 Current scopes: {current_token.get('scope', 'No scopes found')}")
+    else:
+        print("🔍 No cached token found")
+        
 except Exception as e:
+    print(f"DEBUG: Updating playlist with {len(track_uris)} tracks: {track_uris}")
     print(f"❌ Authentication failed: {e}")
     exit(1)
 
