@@ -8,4 +8,4 @@ services:
     ports:
       - "8889:8889"
     env_file:
-      - .e  nv
+      - .env
