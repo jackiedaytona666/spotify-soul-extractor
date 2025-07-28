@@ -1,0 +1,11 @@
+# docker-compose.yml
+# This file defines the services for the Spotify Soul application using Docker Compose.
+# It specifies the build context, ports, and environment variables needed for the application. 
+version: '3.8'
+services:
+  spotify-soul:
+    build: .
+    ports:
+      - "8889:8889"
+    env_file:
+      - .e  nv

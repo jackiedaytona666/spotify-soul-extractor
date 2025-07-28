@@ -1,0 +1,48 @@
+#!/bin/bash
+# Setup script for Spotify Soul Extractor
+
+echo "Setting up Spotify Soul Extractor..."
+
+# check Python
+python_version=$(python3 --version 2>/dev/null | cut -d' ' -f2)
+if [[ -z "$python_version" ]]; then
+    echo "Error: Python 3 not found. Install Python 3.9+"
+    exit 1
+fi
+
+echo "Found Python $python_version"
+
+# create venv if needed
+if [ ! -d "venv" ]; then
+    echo "Creating virtual environment..."
+    python3 -m venv venv
+fi
+
+# activate venv
+echo "Activating virtual environment..."
+source venv/bin/activate
+
+# install dependencies
+echo "Installing requirements..."
+pip install -r requirements.txt
+
+# setup env file
+if [ ! -f ".env" ]; then
+    echo "Creating .env file..."
+    cp .env.example .env
+    echo ""
+    echo "IMPORTANT: Edit .env with your Spotify API credentials"
+    echo "Get them from: https://developer.spotify.com/dashboard"
+else
+    echo ".env file already exists"
+fi
+
+echo ""
+echo "Setup complete!"
+echo ""
+echo "Next steps:"
+echo "1. Edit .env with your Spotify credentials"
+echo "2. Run: python server.py"
+echo "3. Open: http://localhost:8889"
+echo ""
+echo "Or use Docker: docker-compose up --build"

@@ -1,0 +1,18 @@
+version: 2
+
+tunnels:
+  # Main Spotify Soul Extractor Server
+  soul-extractor:
+    proto: http
+    addr: 8889
+    subdomain: spotify-soul-extractor
+    inspect: true
+    bind_tls: true
+    
+  # Development/Testing Server
+  dev-server:
+    proto: http
+    addr: 8880
+    subdomain: spotify-dev
+    inspect: true
+    bind_tls: true
