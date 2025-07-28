@@ -40,11 +40,13 @@ class ServerConfig:
     tokens_dir: str = "tokens"
     session_timeout: int = 3600  # 1 hour
     max_token_age: int = 86400   # 24 hours
-    scope: str = "user-top-read user-read-recently-played user-library-read playlist-read-private"
+    scope: str = "user-top-read user-read-recently-played user-library-read playlist-read-private playlist-modify-public playlist-modify-private"
 
 class SpotifyOAuthManager:
     """Handles Spotify OAuth flow"""
+
     
+
     def __init__(self, config: ServerConfig):
         self.config = config
         self.tokens_dir = Path(config.tokens_dir)
@@ -234,44 +236,34 @@ def get_auth_url():
         return jsonify({'error': 'auth url messed up'}), 500
 
 @app.route('/callback')
-def callback():
-    code = request.args.get("code")
-    state = request.args.get("state")
-    error = request.args.get("error")
+def spotify_callback():
+    """Handle Spotify OAuth callback"""
+    code = request.args.get('code')
+    state = request.args.get('state')
+    error = request.args.get('error')
     
     if error:
-        logger.warning(f"OAuth error: {error}")
-        return redirect('/exit?status=error')
+        return f"""
+        <div style="font-family: Arial; padding: 20px; background: #1a1a1a; color: #1db954;">
+            <h1>❌ Authorization Failed</h1>
+            <p>Error: {error}</p>
+            <p>Please try again.</p>
+        </div>
+        """, 400
     
-    if not code or not state:
-        logger.error("Missing code or state in callback")
-        return redirect('/exit?status=error')
+    if code:
+        return f"""
+        <div style="font-family: Arial; padding: 20px; background: #1a1a1a; color: #1db954;">
+            <h1>✅ Authorization Successful!</h1>
+            <p><strong>Copy this ENTIRE URL and paste it into your terminal:</strong></p>
+            <div style="background: #333; padding: 10px; border-radius: 5px; word-break: break-all; margin: 10px 0;">
+                <code style="color: #fff;">{request.url}</code>
+            </div>
+            <p>Then press Enter in your terminal to continue.</p>
+        </div>
+        """
     
-    if session.get('oauth_state') != state:
-        logger.warning(f"State mismatch: session={session.get('oauth_state')}, callback={state}")
-        return redirect('/exit?status=error')
-    
-    try:
-        result = oauth_manager.handle_callback(code, state)
-        
-        session.pop('oauth_state', None)
-        
-        session['auth_success'] = {
-            'user_name': result.get('user_name'),
-            'user_id': result.get('user_id'),
-            'timestamp': datetime.datetime.now().isoformat()
-        }
-        
-        logger.info(f"Authentication successful for {result.get('user_name', 'Unknown')}")
-        return redirect('/exit?status=success')
-        
-    except BadRequest as e:
-        logger.error(f"Bad request in callback: {e}")
-        return redirect('/exit?status=error')
-        
-    except Exception as e:
-        logger.error(f"Unexpected error in callback: {e}")
-        return redirect('/exit?status=error')
+    return "No authorization code received", 400
 
 @app.route('/exit')
 def exit_screen():
