@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Soul Syphon Academy - Spotify Soul Extraction Portal</title>
+  <meta name="description" content="Advanced Spotify data analytics and musical soul extraction platform">
+  
+<!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-PPRRPZQ8');</script>
+  <!-- End Google Tag Manager -->
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎵</text></svg>">
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary-green: #88ffe0;
+      --dark-green: #4a9b7e;
+      --spotify-green: #1DB954;
+      --black: #0a0a0a;
+      --dark-gray: #1a1a1a;
+      --white: #ffffff;
+      --glow: 0 0 20px rgba(136, 255, 224, 0.3);
+      --spotify-glow: 0 0 25px rgba(29, 185, 84, 0.4);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--black) 0%, var(--dark-gray) 100%);
+      color: var(--primary-green);
+      font-family: 'Courier Prime', 'Courier New', monospace;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Animated background particles */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(136, 255, 224, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(29, 185, 84, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba(136, 255, 224, 0.03) 0%, transparent 50%);
+      animation: float 20s ease-in-out infinite;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      33% { transform: translateY(-10px) rotate(1deg); }
+      66% { transform: translateY(5px) rotate(-1deg); }
+    }
+
+    .container {
+      text-align: center;
+      max-width: 800px;
+      z-index: 1;
+      animation: slideUp 1s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .logo {
+      font-family: 'Orbitron', monospace;
+      font-size: 3.5rem;
+      font-weight: 900;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      background: linear-gradient(45deg, var(--primary-green), var(--white));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: var(--glow);
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .subtitle {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      color: rgba(136, 255, 224, 0.8);
+      font-style: italic;
+      letter-spacing: 1px;
+    }
+
+    .description {
+      font-size: 1rem;
+      margin-bottom: 3rem;
+      max-width: 600px;
+      line-height: 1.6;
+      color: rgba(136, 255, 224, 0.7);
+    }
+
+    .auth-section {
+      background: rgba(136, 255, 224, 0.1);
+      border: 1px solid rgba(136, 255, 224, 0.3);
+      border-radius: 16px;
+      padding: 2rem;
+      margin: 2rem 0;
+      backdrop-filter: blur(10px);
+      animation: glow 4s ease-in-out infinite;
+    }
+
+    @keyframes glow {
+      0%, 100% { box-shadow: var(--glow); }
+      50% { box-shadow: 0 0 30px rgba(136, 255, 224, 0.5); }
+    }
+
+    .auth-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 18px 36px;
+      background: linear-gradient(45deg, var(--spotify-green), #159f3a);
+      color: var(--white);
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1.2rem;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--spotify-glow);
+    }
+
+    .auth-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .auth-button:hover {
+      background: linear-gradient(45deg, #1ed760, var(--spotify-green));
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(29, 185, 84, 0.6);
+    }
+
+    .auth-button:hover::before {
+      left: 100%;
+    }
+
+    .auth-button.loading {
+      pointer-events: none;
+      background: rgba(29, 185, 84, 0.5);
+    }
+
+    .auth-button.loading::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      margin: -10px 0 0 -10px;
+      border: 2px solid transparent;
+      border-top: 2px solid var(--white);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .spotify-icon {
+      font-size: 1.5rem;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+      opacity: 0.9;
+    }
+
+    .feature {
+      padding: 1.5rem;
+      border: 1px solid rgba(136, 255, 224, 0.2);
+      border-radius: 10px;
+      backdrop-filter: blur(5px);
+      transition: all 0.3s ease;
+    }
+
+    .feature:hover {
+      border-color: var(--primary-green);
+      box-shadow: var(--glow);
+      transform: translateY(-5px);
+    }
+
+    .feature-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .feature-title {
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      color: var(--primary-green);
+      font-family: 'Orbitron', monospace;
+    }
+
+    .feature-desc {
+      font-size: 0.9rem;
+      color: rgba(136, 255, 224, 0.7);
+      line-height: 1.4;
+    }
+
+    .server-stats {
+      margin-top: 3rem;
+      padding: 1.5rem;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(136, 255, 224, 0.2);
+      border-radius: 10px;
+      backdrop-filter: blur(10px);
+    }
+
+    .stats-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      color: var(--primary-green);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--spotify-green);
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: rgba(136, 255, 224, 0.6);
+      text-transform: uppercase;
+    }
+
+    .footer {
+      position: absolute;
+      bottom: 20px;
+      font-size: 0.8rem;
+      color: rgba(136, 255, 224, 0.5);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .logo {
+        font-size: 2.5rem;
+        letter-spacing: 2px;
+      }
+      
+      .auth-button {
+        padding: 16px 32px;
+        font-size: 1rem;
+      }
+      
+      .features {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* Error states */
+    .error-message {
+      background: rgba(255, 68, 68, 0.1);
+      border: 1px solid rgba(255, 68, 68, 0.3);
+      color: #ff4444;
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="logo">Soul Syphon Academy</h1>
+    <p class="subtitle">Advanced Spotify Analytics & Musical Soul Extraction</p>
+    
+    <p class="description">
+      Welcome to the most sophisticated Spotify data analytics platform. 
+      Our advanced algorithms will extract, analyze, and visualize your musical soul, 
+      revealing the hidden patterns in your listening habits and the story behind your soundtrack.
+    </p>
+
+    <div class="auth-section">
+      <h2 style="margin-top: 0; font-family: 'Orbitron', monospace; color: var(--primary-green);">
+        🔮 Begin Soul Extraction Ritual
+      </h2>
+      <p style="margin-bottom: 2rem; opacity: 0.8;">
+        Connect your Spotify account to unlock the secrets of your musical DNA
+      </p>
+      
+      <a id="auth-link" href="#" class="auth-button">
+        <span class="spotify-icon">♪</span>
+        <span>Connect with Spotify</span>
+      </a>
+      
+      <div id="error-message" class="error-message">
+        <strong>⚠️ Connection Failed:</strong> <span id="error-text"></span>
+      </div>
+    </div>
+
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">🎵</div>
+        <div class="feature-title">Deep Analysis</div>
+        <div class="feature-desc">analysis of your top tracks, artists, and genres across different time periods</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">Visual Insights</div>
+        <div class="feature-desc">Beautiful charts and interactive visualizations of your musical journey</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🔒</div>
+        <div class="feature-title">Privacy First</div>
+        <div class="feature-desc">All data processing happens locally. Your information never leaves your control</div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-title">Real-time</div>
+        <div class="feature-desc">Instant extraction and analysis with live authentication flow</div>
+      </div>
+    </div>
+
+    {% if stats %}
+    <div class="server-stats">
+      <div class="stats-title">🔧 Server Statistics</div>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-value">{{ stats.total_auth_attempts or 0 }}</div>
+          <div class="stat-label">Total Extractions</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">{{ stats.successful_auths or 0 }}</div>
+          <div class="stat-label">Successful</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">{{ stats.total_tokens or 0 }}</div>
+          <div class="stat-label">Active Tokens</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">v{{ stats.server_version or '2.0' }}</div>
+          <div class="stat-label">Server Version</div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="footer">
+    <span>Powered by Spotify Web API</span>
+    <span style="color: var(--spotify-green);">♪</span>
+    <span>Soul Syphon Academy</span>
+  </div>
+
+  <script>
+    // Enhanced authentication handling
+    const authLink = document.getElementById('auth-link');
+    const errorMessage = document.getElementById('error-message');
+    const errorText = document.getElementById('error-text');
+
+    // Fetch auth URL and handle the authentication flow
+    async function initializeAuth() {
+      try {
+        const response = await fetch('/get-auth-url');
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.auth_url) {
+          authLink.href = data.auth_url;
+          authLink.style.display = 'inline-flex';
+        } else {
+          throw new Error('No authentication URL received');
+        }
+      } catch (error) {
+        console.error('Auth initialization failed:', error);
+        showError(`Failed to initialize authentication: ${error.message}`);
+      }
+    }
+
+    // Show error message
+    function showError(message) {
+      errorText.textContent = message;
+      errorMessage.style.display = 'block';
+      authLink.style.display = 'none';
+    }
+
+    // Handle auth button click
+    authLink.addEventListener('click', function(e) {
+      if (this.href === '#') {
+        e.preventDefault();
+        return;
+      }
+      
+      // Add loading state
+      this.classList.add('loading');
+      this.innerHTML = '<span class="spotify-icon">♪</span><span>Connecting...</span>';
+      
+      // Reset after timeout (in case popup is blocked)
+      setTimeout(() => {
+        this.classList.remove('loading');
+        this.innerHTML = '<span class="spotify-icon">♪</span><span>Connect with Spotify</span>';
+      }, 5000);
+    });
+
+    // Add mouse trail effect
+    document.addEventListener('mousemove', function(e) {
+      const trail = document.createElement('div');
+      trail.style.cssText = `
+        position: fixed;
+        left: ${e.clientX}px;
+        top: ${e.clientY}px;
+        width: 3px;
+        height: 3px;
+        background: rgba(136, 255, 224, 0.4);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 1000;
+        animation: fadeOut 1s ease-out forwards;
+      `;
+      
+      document.body.appendChild(trail);
+      setTimeout(() => trail.remove(), 1000);
+    });
+
+    // Add fade out animation for trail
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes fadeOut {
+        0% { opacity: 1; transform: scale(1); }
+        100% { opacity: 0; transform: scale(0); }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Initialize authentication on page load
+    document.addEventListener('DOMContentLoaded', initializeAuth);
+
+    // Health check and stats refresh
+    async function refreshStats() {
+      try {
+        const response = await fetch('/stats');
+        if (response.ok) {
+          const stats = await response.json();
+          // Update stats if elements exist
+          console.log('Server stats:', stats);
+        }
+      } catch (error) {
+        console.log('Stats refresh failed:', error);
+      }
+    }
+
+    // Refresh stats every 30 seconds
+    setInterval(refreshStats, 30000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Processing Soul Extraction - Soul Syphon Academy</title>
+  <meta name="description" content="Processing your Spotify authentication and beginning soul extraction">
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔄</text></svg>">
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary-green: #88ffe0;
+      --dark-green: #4a9b7e;
+      --spotify-green: #1DB954;
+      --warning-orange: #ffaa44;
+      --error-red: #ff4444;
+      --black: #0a0a0a;
+      --dark-gray: #1a1a1a;
+      --white: #ffffff;
+      --glow: 0 0 20px rgba(136, 255, 224, 0.4);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--black) 0%, var(--dark-gray) 100%);
+      color: var(--primary-green);
+      font-family: 'Courier Prime', 'Courier New', monospace;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Processing animation background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 25% 25%, rgba(136, 255, 224, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(29, 185, 84, 0.05) 0%, transparent 50%);
+      animation: rotate 20s linear infinite;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    @keyframes rotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .container {
+      text-align: center;
+      max-width: 600px;
+      z-index: 1;
+      animation: slideUp 0.8s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .processing-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      animation: spin 2s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .title {
+      font-family: 'Orbitron', monospace;
+      font-size: 2.5rem;
+      font-weight: 900;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      background: linear-gradient(45deg, var(--primary-green), var(--white));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: var(--glow);
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+      color: rgba(136, 255, 224, 0.8);
+      font-style: italic;
+    }
+
+    .status-box {
+      background: rgba(136, 255, 224, 0.1);
+      border: 1px solid rgba(136, 255, 224, 0.3);
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 2rem 0;
+      backdrop-filter: blur(10px);
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .status-box.success {
+      border-color: rgba(0, 255, 136, 0.5);
+      background: rgba(0, 255, 136, 0.1);
+      box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+    }
+
+    .status-box.error {
+      border-color: rgba(255, 68, 68, 0.5);
+      background: rgba(255, 68, 68, 0.1);
+      box-shadow: 0 0 30px rgba(255, 68, 68, 0.3);
+    }
+
+    .status-message {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      font-weight: bold;
+    }
+
+    .status-details {
+      font-size: 0.9rem;
+      opacity: 0.8;
+      line-height: 1.4;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: rgba(136, 255, 224, 0.2);
+      border-radius: 3px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary-green), var(--spotify-green));
+      border-radius: 3px;
+      animation: progress 3s ease-in-out;
+    }
+
+    @keyframes progress {
+      0% { width: 0%; }
+      50% { width: 70%; }
+      100% { width: 100%; }
+    }
+
+    .actions {
+      margin-top: 2rem;
+      display: none; /* Initially hidden */
+    }
+
+    .button {
+      display: inline-block;
+      padding: 14px 28px;
+      background: linear-gradient(45deg, var(--primary-green), var(--dark-green));
+      color: var(--black);
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1rem;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 0 0.5rem;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(136, 255, 224, 0.4);
+    }
+
+    .debug-info {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      color: var(--primary-green);
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      border: 1px solid rgba(136, 255, 224, 0.3);
+      max-width: 300px;
+      display: none; /* Hidden by default */
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .title {
+        font-size: 2rem;
+      }
+      
+      .processing-icon {
+        font-size: 3rem;
+      }
+      
+      .debug-info {
+        position: relative;
+        margin-top: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="processing-icon" id="statusIcon">🔄</div>
+    
+    <h1 class="title">Processing Soul Extraction</h1>
+    <p class="subtitle">Authenticating with Spotify and preparing your musical data...</p>
+    
+    <div class="status-box" id="statusBox">
+      <div class="status-message" id="statusMessage">Initializing authentication...</div>
+      <div class="progress-bar">
+        <div class="progress-fill"></div>
+      </div>
+      <div class="status-details" id="statusDetails">Please wait while we process your credentials...</div>
+    </div>
+
+    <div class="actions" id="actions">
+      <a href="/" class="button">🏠 Return Home</a>
+      <a href="/stats" class="button">📊 View Status</a>
+    </div>
+  </div>
+
+  <div class="debug-info" id="debugInfo">
+    <strong>Debug Info:</strong><br>
+    <span id="debugText">Loading...</span>
+  </div>
+
+  <script>
+    // Enhanced callback processing with security and UX improvements
+    class SpotifyCallbackProcessor {
+      constructor() {
+        this.statusIcon = document.getElementById('statusIcon');
+        this.statusBox = document.getElementById('statusBox');
+        this.statusMessage = document.getElementById('statusMessage');
+        this.statusDetails = document.getElementById('statusDetails');
+        this.actions = document.getElementById('actions');
+        this.debugInfo = document.getElementById('debugInfo');
+        this.debugText = document.getElementById('debugText');
+        
+        this.init();
+      }
+
+      init() {
+        setTimeout(() => this.processCallback(), 1000);
+      }
+
+      updateStatus(icon, message, details, type = 'processing') {
+        this.statusIcon.textContent = icon;
+        this.statusMessage.textContent = message;
+        this.statusDetails.textContent = details;
+        
+        // Update status box styling
+        this.statusBox.className = `status-box ${type}`;
+        
+        // Stop spinning icon for final states
+        if (type !== 'processing') {
+          this.statusIcon.style.animation = 'none';
+        }
+      }
+
+      showActions() {
+        this.actions.style.display = 'block';
+        this.actions.style.animation = 'slideUp 0.5s ease-out';
+      }
+
+      updateDebugInfo(info) {
+        this.debugText.innerHTML = info;
+        // Show debug info in development
+        if (window.location.hostname === 'localhost') {
+          this.debugInfo.style.display = 'block';
+        }
+      }
+
+      processCallback() {
+        try {
+          // Check for error in URL parameters first
+          const urlParams = new URLSearchParams(window.location.search);
+          const error = urlParams.get('error');
+          
+          if (error) {
+            this.handleError(`Authentication error: ${error}`, 'User denied access or authentication failed');
+            return;
+          }
+
+          // Process hash fragment for access token
+          const hash = window.location.hash.substring(1);
+          const params = new URLSearchParams(hash);
+          
+          const accessToken = params.get('access_token');
+          const tokenType = params.get('token_type');
+          const expiresIn = params.get('expires_in');
+          const state = params.get('state');
+
+          this.updateDebugInfo(`
+            Hash: ${hash ? 'Present' : 'Missing'}<br>
+            Token: ${accessToken ? 'Found' : 'Missing'}<br>
+            Type: ${tokenType || 'N/A'}<br>
+            Expires: ${expiresIn || 'N/A'}s<br>
+            State: ${state || 'N/A'}
+          `);
+
+          if (accessToken) {
+            this.handleSuccess(accessToken, expiresIn);
+          } else {
+            this.handleError('No access token found', 'The authentication response did not contain a valid token');
+          }
+
+        } catch (error) {
+          console.error('Callback processing error:', error);
+          this.handleError('Processing failed', error.message);
+        }
+      }
+
+      async handleSuccess(accessToken, expiresIn) {
+        this.updateStatus('🔍', 'Token received, validating...', 'Verifying token with Spotify API...');
+        
+        try {
+          // Validate token by making a test API call
+          const response = await fetch('https://api.spotify.com/v1/me', {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`
+            }
+          });
+
+          if (response.ok) {
+            const userData = await response.json();
+            
+            this.updateStatus('✨', 'Authentication successful!', 
+              `Welcome ${userData.display_name || 'Musical Soul'}! Redirecting to extraction results...`, 'success');
+            
+            // Send token to your server (securely)
+            await this.sendTokenToServer(accessToken, userData);
+            
+            // Redirect after delay
+            setTimeout(() => {
+              window.location.href = '/exit?status=success';
+            }, 2000);
+            
+          } else {
+            throw new Error(`Token validation failed: ${response.status}`);
+          }
+          
+        } catch (error) {
+          console.error('Token validation error:', error);
+          this.handleError('Token validation failed', error.message);
+        }
+      }
+
+      async sendTokenToServer(accessToken, userData) {
+        try {
+          const response = await fetch('/process-token', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              access_token: accessToken,
+              user_data: userData,
+              timestamp: new Date().toISOString()
+            })
+          });
+
+          if (!response.ok) {
+            console.warn('Failed to send token to server:', response.status);
+          }
+        } catch (error) {
+          console.warn('Error sending token to server:', error);
+          // Don't fail the whole process if server communication fails
+        }
+      }
+
+      handleError(message, details) {
+        this.updateStatus('⚠️', message, details, 'error');
+        this.showActions();
+        
+        // Redirect to error page after delay
+        setTimeout(() => {
+          window.location.href = '/exit?status=error';
+        }, 5000);
+      }
+    }
+
+    // Initialize callback processor when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      new SpotifyCallbackProcessor();
+    });
+
+    // Security: Clear sensitive data from URL
+    if (window.location.hash) {
+      // Clear hash after processing
+      setTimeout(() => {
+        history.replaceState(null, null, window.location.pathname + window.location.search);
+      }, 3000);
+    }
+  </script>
+</body>
+</html>

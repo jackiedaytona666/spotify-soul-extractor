@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-41ELX7895V"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-41ELX7895V');
+</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% if status == 'success' %}Soul Extraction Complete{% else %}Extraction Interrupted{% endif %} - Soul Syphon Academy</title>
+  <meta name="description" content="Your musical soul has been successfully extracted and analyzed">
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✨</text></svg>">
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary-green: #88ffe0;
+      --dark-green: #4a9b7e;
+      --success-green: #00ff88;
+      --error-red: #ff4444;
+      --warning-orange: #ffaa44;
+      --black: #0a0a0a;
+      --dark-gray: #1a1a1a;
+      --white: #ffffff;
+      --glow-success: 0 0 30px rgba(0, 255, 136, 0.5);
+      --glow-error: 0 0 30px rgba(255, 68, 68, 0.5);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--black) 0%, var(--dark-gray) 100%);
+      font-family: 'Courier Prime', 'Courier New', monospace;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Dynamic background based on status */
+    body.success {
+      color: var(--success-green);
+    }
+
+    body.error {
+      color: var(--error-red);
+    }
+
+    body.warning {
+      color: var(--warning-orange);
+    }
+
+    /* Animated background particles */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 30% 40%, rgba(136, 255, 224, 0.1) 0%, transparent 50%),
+                  radial-gradient(circle at 70% 80%, rgba(136, 255, 224, 0.05) 0%, transparent 50%);
+      animation: float 15s ease-in-out infinite;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    body.success::before {
+      background: radial-gradient(circle at 30% 40%, rgba(0, 255, 136, 0.15) 0%, transparent 50%),
+                  radial-gradient(circle at 70% 80%, rgba(0, 255, 136, 0.08) 0%, transparent 50%);
+    }
+
+    body.error::before {
+      background: radial-gradient(circle at 30% 40%, rgba(255, 68, 68, 0.15) 0%, transparent 50%),
+                  radial-gradient(circle at 70% 80%, rgba(255, 68, 68, 0.08) 0%, transparent 50%);
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      33% { transform: translateY(-15px) rotate(2deg); }
+      66% { transform: translateY(10px) rotate(-1deg); }
+    }
+
+    .container {
+      text-align: center;
+      max-width: 600px;
+      z-index: 1;
+      animation: slideUp 1s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .status-icon {
+      font-size: 5rem;
+      margin-bottom: 1rem;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-10px); }
+      60% { transform: translateY(-5px); }
+    }
+
+    .title {
+      font-family: 'Orbitron', monospace;
+      font-size: 2.5rem;
+      font-weight: 900;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: var(--glow-success);
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    body.error .title {
+      text-shadow: var(--glow-error);
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .message {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+      max-width: 500px;
+      opacity: 0.9;
+    }
+
+    .user-info {
+      background: rgba(136, 255, 224, 0.1);
+      border: 1px solid rgba(136, 255, 224, 0.3);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+      backdrop-filter: blur(10px);
+    }
+
+    .user-info h3 {
+      margin: 0 0 1rem 0;
+      font-family: 'Orbitron', monospace;
+      font-size: 1.2rem;
+      color: var(--primary-green);
+    }
+
+    .user-detail {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      padding: 0.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 6px;
+    }
+
+    .user-detail:last-child {
+      margin-bottom: 0;
+    }
+
+    .user-detail .label {
+      font-weight: bold;
+      color: var(--primary-green);
+    }
+
+    .user-detail .value {
+      opacity: 0.8;
+    }
+
+    .actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 14px 28px;
+      background: linear-gradient(45deg, var(--primary-green), var(--dark-green));
+      color: var(--black);
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1rem;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      position: relative;
+      overflow: hidden;
+      min-width: 150px;
+    }
+
+    .button.primary {
+      background: linear-gradient(45deg, var(--success-green), var(--dark-green));
+      box-shadow: var(--glow-success);
+    }
+
+    .button.secondary {
+      background: linear-gradient(45deg, var(--primary-green), var(--white));
+      box-shadow: 0 0 20px rgba(136, 255, 224, 0.3);
+    }
+
+    .button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(136, 255, 224, 0.4);
+    }
+
+    .button:hover::before {
+      left: 100%;
+    }
+
+    .stats {
+      margin-top: 3rem;
+      font-size: 0.9rem;
+      opacity: 0.7;
+      font-style: italic;
+    }
+
+    .error-details {
+      background: rgba(255, 68, 68, 0.1);
+      border: 1px solid rgba(255, 68, 68, 0.3);
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .title {
+        font-size: 2rem;
+      }
+      
+      .status-icon {
+        font-size: 3.5rem;
+      }
+      
+      .actions {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .button {
+        width: 100%;
+        max-width: 250px;
+      }
+    }
+
+    /* Auto-close timer */
+    .auto-close {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      color: var(--primary-green);
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      border: 1px solid rgba(136, 255, 224, 0.3);
+    }
+  </style>
+</head>
+<body class="{% if status == 'success' %}success{% elif status == 'error' %}error{% else %}warning{% endif %}">
+  
+  {% if status == 'success' %}
+  <!-- Auto-close timer -->
+  <div class="auto-close" id="autoClose" style="display: none;">
+    Closing in <span id="countdown">10</span>s
+  </div>
+  {% endif %}
+
+  <div class="container">
+    <!-- Status Icon -->
+    <div class="status-icon">
+      {% if status and status == 'success' %}
+        ✨
+      {% elif status == 'error' %}
+        ⚠️
+      {% else %}
+        🤔
+      {% endif %}
+    </div>
+
+    <!-- Title -->
+    <h1 class="title">
+      {% if status == 'success' %}
+        Soul Extraction Complete
+      {% elif status == 'error' %}
+        Extraction Interrupted
+      {% else %}
+        Unknown Status
+      {% endif %}
+    </h1>
+
+    <!-- Message -->
+    <div class="message">
+      {% if status == 'success' %}
+        <p>🎵 <strong>Your musical soul has been successfully extracted and preserved!</strong></p>
+        <p>The digital essence of your musical journey has been captured, analyzed, and encoded into pure data. Your sonic fingerprint is now ready for deep analysis.</p>
+      {% elif status == 'error' %}
+        <p>❌ <strong>The extraction ritual was interrupted.</strong></p>
+        <p>Something went wrong during the authentication process. Don't worry - your musical soul remains intact. Please try again.</p>
+      {% else %}
+        <p>🤷‍♂️ <strong>Unknown extraction status.</strong></p>
+        <p>The ritual completed, but we're not sure what happened. Please check your data directory.</p>
+      {% endif %}
+    </div>
+
+    <!-- User Information (only show on success) -->
+    {% if status == 'success' and auth_success %}
+    <div class="user-info">
+      <h3>🎭 Soul Profile</h3>
+      <div class="user-detail">
+        <span class="label">Spotify Identity:</span>
+        <span class="value">{{ auth_success.user_name or 'Musical Entity' }}</span>
+      </div>
+      <div class="user-detail">
+        <span class="label">Soul ID:</span>
+        <span class="value">{{ auth_success.user_id }}</span>
+      </div>
+      <div class="user-detail">
+        <span class="label">Extraction Time:</span>
+        <span class="value">{{ timestamp }}</span>
+      </div>
+      <div class="user-detail">
+        <span class="label">Status:</span>
+        <span class="value">Soul Successfully Captured ✅</span>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Error Details (only show on error) -->
+    {% if status == 'error' %}
+    <div class="error-details">
+      <strong>Possible causes:</strong>
+      <ul style="text-align: left; margin: 0.5rem 0 0 1rem;">
+        <li>Authentication was cancelled or denied</li>
+        <li>Network connection issues</li>
+        <li>Spotify API temporarily unavailable</li>
+        <li>Invalid OAuth state or session expired</li>
+      </ul>
+    </div>
+    {% endif %}
+
+    <!-- Actions -->
+    <div class="actions">
+      {% if status == 'success' %}
+        <a href="/stats" class="button primary">📊 View Analytics</a>
+        <a href="/" class="button secondary">🔄 Extract Another</a>
+      {% elif status == 'error' %}
+        <a href="/" class="button primary">🔄 Try Again</a>
+        <a href="/stats" class="button secondary">📊 Server Status</a>
+      {% else %}
+        <a href="/" class="button primary">🏠 Return Home</a>
+        <a href="/stats" class="button secondary">📊 Check Status</a>
+      {% endif %}
+    </div>
+
+    <!-- Stats -->
+    <div class="stats">
+      {% if status == 'success' %}
+        Your musical soul is now preserved in the digital realm.<br>
+        Check your data directory for the complete analysis.
+      {% else %}
+        Soul Syphon Academy - Where music meets data science
+      {% endif %}
+    </div>
+  </div>
+
+  <script>
+    // Auto-close functionality for successful extractions
+    {% if status == 'success' %}
+    const autoCloseEl = document.getElementById('autoClose');
+    const countdownEl = document.getElementById('countdown');
+    let countdown = 10;
+    let closeTimer = null;
+
+    const cancelAutoClose = () => {
+      if (closeTimer) {
+        clearInterval(closeTimer);
+        autoCloseEl.innerHTML = 'Auto-close cancelled.';
+        setTimeout(() => {
+            autoCloseEl.style.display = 'none';
+        }, 2000);
+        // Remove listeners to prevent them from being called again
+        document.removeEventListener('click', cancelAutoClose);
+        document.removeEventListener('keydown', cancelAutoClose);
+      }
+    };
+
+    document.addEventListener('click', cancelAutoClose);
+    document.addEventListener('keydown', cancelAutoClose);
+
+    // Show auto-close timer after an initial delay
+    setTimeout(() => {
+      autoCloseEl.style.display = 'block';
+      
+      closeTimer = setInterval(() => {
+        countdown--;
+        countdownEl.textContent = countdown;
+        
+        if (countdown <= 0) {
+          clearInterval(closeTimer);
+          // Attempt to close the window.
+          // NOTE: Modern browsers often block window.close() unless the window
+          // was opened by a script (e.g., window.open()).
+          window.close();
+          
+          // If window.close() fails, this fallback will redirect the user.
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 500);
+        }
+      }, 1000);
+    }, 2000);
+    {% endif %}
+
+    // Add some celebration particles for successful extraction
+    {% if status == 'success' %}
+    function createParticle() {
+      const particle = document.createElement('div');
+      particle.style.cssText = `
+        position: fixed;
+        left: ${Math.random() * 100}vw;
+        top: 100vh;
+        width: 6px;
+        height: 6px;
+        background: rgba(0, 255, 136, 0.8);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 1000;
+        animation: rise 3s ease-out forwards;
+      `;
+      
+      document.body.appendChild(particle);
+      setTimeout(() => particle.remove(), 3000);
+    }
+
+    // Add rise animation
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes rise {
+        0% { 
+          transform: translateY(0) rotate(0deg);
+          opacity: 1;
+        }
+        100% { 
+          transform: translateY(-100vh) rotate(360deg);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Create particles periodically
+    setInterval(createParticle, 300);
+    {% endif %}
+  </script>
+</body>
+</html>
