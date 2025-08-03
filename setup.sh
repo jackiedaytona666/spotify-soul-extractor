@@ -10,6 +10,14 @@ if [[ -z "$python_version" ]]; then
     exit 1
 fi
 
+# Check if Python version is >= 3.9
+version_major=$(echo "$python_version" | cut -d. -f1)
+version_minor=$(echo "$python_version" | cut -d. -f2)
+if (( version_major < 3 )) || { (( version_major == 3 )) && (( version_minor < 9 )); }; then
+    echo "Error: Python version $python_version is too old. Install Python 3.9+"
+    exit 1
+fi
+
 echo "Found Python $python_version"
 
 # create venv if needed
@@ -18,16 +26,20 @@ if [ ! -d "venv" ]; then
     python3 -m venv venv
 fi
 
-# activate venv
+# activate venv (platform-specific)
 echo "Activating virtual environment..."
-source venv/bin/activate
+if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
+    source venv/Scripts/activate
+else
+    source venv/bin/activate
+fi
 
 # install dependencies
-echo "Installing requirements..."
-pip install -r requirements.txt
-
-# setup env file
 if [ ! -f ".env" ]; then
+    if [ ! -f ".env.example" ]; then
+        echo "Error: .env.example file not found. Please provide .env.example before running setup."
+        exit 1
+    fi
     echo "Creating .env file..."
     cp .env.example .env
     echo ""
@@ -37,12 +49,10 @@ else
     echo ".env file already exists"
 fi
 
-echo ""
-echo "Setup complete!"
-echo ""
 echo "Next steps:"
-echo "1. Edit .env with your Spotify credentials"
+echo "1. Run: python server.py"
+echo "2. Open: http://localhost:8889"
+echo "Or use Docker: docker-compose up --build"
 echo "2. Run: python server.py"
 echo "3. Open: http://localhost:8889"
 echo ""
-echo "Or use Docker: docker-compose up --build"

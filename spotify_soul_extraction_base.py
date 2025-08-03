@@ -5,11 +5,10 @@ Spotify data extraction script
 
 import json
 import os
-import sys
 import datetime
 import time
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 from dataclasses import dataclass
 import logging
 from spotipy import Spotify
@@ -36,7 +35,7 @@ class SpotifyTokenManager:
     
     def __init__(self, token_dir: str = "tokens"):
         self.token_dir = Path(token_dir)
-        self.token_dir.mkdir(exist_ok=True)
+        self.token_dir.mkdir(parents=True, exist_ok=True)
     
     def get_latest_token(self) -> Path:
         """Find and return the latest token file"""
@@ -98,7 +97,7 @@ class SpotifyDataExtractor:
     
     def _setup_output_directory(self):
         self.output_path = Path(self.config.output_dir)
-        self.output_path.mkdir(exist_ok=True)
+        self.output_path.mkdir(parents=True, exist_ok=True)
         
         # Create subdirectories for organization
         (self.output_path / "raw").mkdir(exist_ok=True)
@@ -110,7 +109,8 @@ class SpotifyDataExtractor:
         
         # Validate token before using
         if not self.token_manager.validate_token(latest_token):
-            logger.warning("Token validation failed, but proceeding anyway...")
+            logger.error("Token validation failed. Please re-authenticate to obtain a valid token.")
+            raise FileNotFoundError("Invalid or expired Spotify token. Please run the authentication flow again.")
         
         try:
             sp = Spotify(auth_manager=SpotifyOAuth(
@@ -184,7 +184,7 @@ class SpotifyDataExtractor:
         )
         if user_profile:
             data["user_profile"] = user_profile
-            data["extraction_metadata"]["spotify_user_id"] = user_profile.get("id")
+            data["extraction_metadata"]["spotify_user_id"] = user_profile.get('id') # type: ignore
             logger.info(f"User: {user_profile.get('display_name', 'Unknown')}")
         
         # Extract top items
@@ -344,19 +344,29 @@ class SpotifyDataExtractor:
         # backup old files - dont want to lose anything
         if output_file.exists():
             backup_file = self.output_path / "backups" / f"backup_{filename}"
+            # Ensure backup file does not overwrite an existing backup
+            if backup_file.exists():
+                base = backup_file.stem
+                ext = backup_file.suffix
+                i = 1
+                while True:
+                    new_backup_file = backup_file.parent / f"{base}_{i}{ext}"
+                    if not new_backup_file.exists():
+                        backup_file = new_backup_file
+                        break
+                    i += 1
             output_file.rename(backup_file)
             logger.info(f"Created backup: {backup_file}")
         
         try:
             with open(output_file, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
+            logger.info(f"Data saved to: {output_file}")
         except Exception as e:
             # file writing messed up
-            logger.error(f"couldnt save file: {e}")
-            raise
-        
+            logger.error(f"Couldn't save file: {e}")
+            raise IOError(f"Failed to save data to {output_file}: {e}")
         file_size = output_file.stat().st_size
-        logger.info(f"Data saved to: {output_file}")
         logger.info(f"File size: {file_size:,} bytes ({file_size/1024:.1f} KB)")
         
         return output_file

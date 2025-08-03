@@ -1,4 +1,4 @@
-7;9u!/bin/bash
+#!/bin/bash
 # Setup script for Spotify Soul Extractor
 
 echo "Setting up Spotify Soul Extractor..."
@@ -7,6 +7,14 @@ echo "Setting up Spotify Soul Extractor..."
 python_version=$(python3 --version 2>/dev/null | cut -d' ' -f2)
 if [[ -z "$python_version" ]]; then
     echo "Error: Python 3 not found. Install Python 3.9+"
+    exit 1
+fi
+
+# Check for minimum Python version 3.9
+python_major=$(echo "$python_version" | cut -d. -f1)
+python_minor=$(echo "$python_version" | cut -d. -f2)
+if [[ "$python_major" -lt 3 ]] || { [[ "$python_major" -eq 3 ]] && [[ "$python_minor" -lt 9 ]]; }; then
+    echo "Error: Python 3.9+ required. Found Python $python_version"
     exit 1
 fi
 
@@ -20,7 +28,14 @@ fi
 
 # activate venv
 echo "Activating virtual environment..."
-source venv/bin/activate
+if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
+    echo "Windows detected. Please activate the virtual environment manually with:"
+    echo "venv\\Scripts\\activate"
+else
+    source venv/bin/activate
+fi
+    source venv/bin/activate
+fi
 
 # install dependencies
 echo "Installing requirements..."
@@ -28,6 +43,10 @@ pip install -r requirements.txt
 
 # setup env file
 if [ ! -f ".env" ]; then
+    if [ ! -f ".env.example" ]; then
+        echo "Error: .env.example file not found. Please provide .env.example before setup."
+        exit 1
+    fi
     echo "Creating .env file..."
     cp .env.example .env
     echo ""
@@ -36,12 +55,12 @@ if [ ! -f ".env" ]; then
 else
     echo ".env file already exists"
 fi
-
-echo ""
-echo "Setup complete!"
-echo ""
 echo "Next steps:"
 echo "1. Edit .env with your Spotify credentials"
+echo "2. Run: python main.py"
+echo "3. Open: http://localhost:8889"
+echo ""
+echo "Or use Docker: docker-compose up --build"
 echo "2. Run: python server.py"
 echo "3. Open: http://localhost:8889"
 echo ""

@@ -3,7 +3,7 @@
 
 # Spotify Soul Extraction CLI Wrapper
 # A sophisticated bash interface for the Spotify Soul extraction tools
-# Author: Your Name
+# Author: Stuart Holmberg
 # Version: 2.0
 
 set -euo pipefail  # Exit on error, undefined vars, pipe failures
@@ -193,7 +193,14 @@ read_soul() {
     
     # Show file stats
     local file_size
-    file_size=$(stat -f%z "$data_file" 2>/dev/null || stat -c%s "$data_file" 2>/dev/null || echo "unknown")
+    # Get file size in bytes (BSD/macOS uses -f%z, GNU/Linux uses -c%s)
+    if stat -f%z "$data_file" &> /dev/null; then
+        file_size=$(stat -f%z "$data_file")
+    elif stat -c%s "$data_file" &> /dev/null; then
+        file_size=$(stat -c%s "$data_file")
+    else
+        file_size="unknown"
+    fi
     print_info "File size: $file_size bytes"
     print_status "Soul data displayed successfully!"
 }
@@ -298,13 +305,13 @@ show_status() {
         echo "  ✅ Latest: $(basename "$data_file")"
         echo "     Created: $file_age"
     else
-        echo "  ❌ No data files found"
-    fi
-    
-    echo
-    
-    # Check scripts
-    echo "🔧 Available Scripts:"
+    for script in "spotify_soul_extraction_base.py" "soulpull.py"; do
+        if [[ -f "$SCRIPT_DIR/$script" ]]; then
+            echo "  ✅ $script"
+        else
+            echo "  ❌ $script"
+        fi
+    done
     for script in "spotify_soul_extraction_base.py" "soulpull.py" "server.py"; do
         if [[ -f "$SCRIPT_DIR/$script" ]]; then
             echo "  ✅ $script"
@@ -347,7 +354,11 @@ show_usage() {
 # Main script logic
 main() {
     # Create log file
-    touch "$LOG_FILE"
+    if ! touch "$LOG_FILE" 2>/dev/null; then
+        echo -e "${RED}❌ Cannot create or write to log file: $LOG_FILE${NC}" >&2
+        echo "ERROR: Cannot create or write to log file: $LOG_FILE" >&2
+        exit 1
+    fi
     log "=== Soulpull CLI Started ==="
     
     if [[ $# -eq 0 ]]; then
@@ -381,8 +392,7 @@ main() {
             exit 1
             ;;
     esac
-    
-    log "=== Soulpull CLI Finished ==="
+main "$@"=== Soulpull CLI Finished ==="
 }
 
 # Run main function

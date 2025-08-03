@@ -20,37 +20,41 @@ raw_path = Path('path/raw_soul_data.json')
 landing_folder = Path('final_landing')
 
 # Spotify auth
+# Spotify auth
+SPOTIPY_CLIENT_ID = os.getenv("SPOTIPY_CLIENT_ID")
+SPOTIPY_CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
+SPOTIPY_REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI")
+
 tokens_dir = Path("tokens")
 if not tokens_dir.exists() or not any(tokens_dir.iterdir()):
     print(f"No token files found in '{tokens_dir}' directory.")
     print("Please run the authentication flow first (e.g., by running server.py).")
     sys.exit(1)
-latest_file = max(tokens_dir.glob('*.json'), key=lambda f: f.stat().st_ctime)
+token_files = list(tokens_dir.glob('*.json'))
+if not token_files:
+    print(f"No token files found in '{tokens_dir}' directory.")
+    print("Please run the authentication flow first (e.g., by running server.py).")
+    sys.exit(1)
+# Define the scopes used for Spotify authentication
+SPOTIFY_SCOPE = "user-top-read user-read-recently-played"
 
-with open(latest_file, 'r') as f:
-    token_info = json.load(f)
+# Find the latest token file for cache_path
+latest_file = max(token_files, key=os.path.getctime)
 
 sp = Spotify(auth_manager=SpotifyOAuth(
-    scope="user-top-read user-read-recently-played",
-    client_id=os.getenv("SPOTIPY_CLIENT_ID"),
-    client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"),
-    redirect_uri=os.getenv("SPOTIPY_REDIRECT_URI"),
-    cache_path=latest_file
+    scope=SPOTIFY_SCOPE,
+    client_id=SPOTIPY_CLIENT_ID,
+    client_secret=SPOTIPY_CLIENT_SECRET,
+    redirect_uri=SPOTIPY_REDIRECT_URI,
+    cache_path=str(latest_file)
 ))
 
-app = Flask(__name__)
-
-# Define your Spotify app credentials
-SPOTIPY_CLIENT_ID = os.getenv("SPOTIPY_CLIENT_ID")
-SPOTIPY_CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
-SPOTIPY_REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI")
-
-# Initialize the OAuth instance
+# Initialize the OAuth instance (if needed for callback flows)
 sp_oauth_instance_for_callback = SpotifyOAuth(
     client_id=SPOTIPY_CLIENT_ID,
     client_secret=SPOTIPY_CLIENT_SECRET,
     redirect_uri=SPOTIPY_REDIRECT_URI,
-    scope="user-library-read"  # adjust scopes as needed
+    scope=SPOTIFY_SCOPE
 )
 
 cache_path = ".cache"
@@ -58,8 +62,11 @@ cache_path = ".cache"
 if "--backup" in sys.argv:
     os.makedirs("backups", exist_ok=True)
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    shutil.copy("path/raw_soul_data.json", f"backups/soul_{timestamp}.json")
-
+    source_file = "path/raw_soul_data.json"
+    if os.path.exists(source_file):
+        shutil.copy(source_file, f"backups/soul_{timestamp}.json")
+    else:
+        print(f"Backup failed: '{source_file}' does not exist.")
 def process_track(track_item):
     track = track_item.get('track', track_item) # For recent tracks, 'track' is nested
     if not track:
@@ -100,13 +107,19 @@ def process_soul_data(raw_data):
     # Process Top Artists
     processed_artists = {}
     for term, artists_data in raw_data.get('top_artists', {}).items():
-        processed_artists[term] = [process_artist(item) for item in artists_data.get('items', []) if process_artist(item) is not None]
+        process_top_artists(term, processed_artists, artists_data)
     processed['top_artists'] = processed_artists
 
     # Process Recent Tracks
-    processed['recent_tracks'] = [process_track(item) for item in raw_data.get('recent_tracks', {}).get('items', []) if process_track(item) is not None]
+    process_recent_tracks(raw_data, processed)
 
     return processed
+
+def process_top_artists(term, processed_artists, artists_data):
+    processed_artists[term] = [process_artist(item) for item in artists_data.get('items', []) if process_artist(item) is not None]
+
+def process_recent_tracks(raw_data, processed):
+    processed['recent_tracks'] = [process_track(item) for item in raw_data.get('recent_tracks', {}).get('items', []) if process_track(item) is not None]
 
 def ritual():
     extract()
@@ -180,6 +193,9 @@ def read():
     print(f"Spotify URI: {user_profile.get('uri', 'N/A')}")
     print(f"Profile URL: {user_profile.get('external_urls', {}).get('spotify', 'N/A')}")
     print("--------------------\n")
+    display_raw_data(data)
+
+def display_raw_data(data):
     pprint(data)
 
 import argparse
